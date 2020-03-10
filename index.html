@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hlasovač</title>
+        <meta charset="utf-8">
+        <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+        <!--<base href="D:/Program Files (x86)/EasyPHP-Devserver-16.1/eds-www/chatapp/">-->
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+        <script src="script.js" type="text/javascript"></script>
+        <link href="style.css" rel="stylesheet" type="text/css"/>
+        <style>
+            body {
+                background-color: #1F2739;
+                font-family: "Roboto", helvetica, arial, sans-serif;
+                font-size: 16px;
+                font-weight: 400;
+                text-rendering: optimizeLegibility;
+                margin:0px;
+            }
+            .invisible {
+                visibility: hidden;
+            }
+
+            #buttondiv {
+                width:100%;
+                height:100%;
+                vertical-align: middle;
+                margin: auto;
+            }
+
+            #button {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                vertical-align: middle;
+            }
+
+
+            .itsbutton {
+                background:#FF5733;
+                color:#1b1e24;
+                border: 1px solid #873600;
+                font-size:23px;
+                font-weight: normal;
+                text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+                vertical-align:middle;
+                -webkit-touch-callout: none; /* iOS Safari */
+                -webkit-user-select: none; /* Chrome/Safari/Opera */
+                -khtml-user-select: none; /* Konqueror */
+                -moz-user-select: none; /* Firefox */
+                -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                      not supported by any browser */
+                margin-bottom: 15px;
+                padding:10px;
+                height: 30px;
+                width: 150px;
+                line-height: 30px;
+                text-align: center;
+            }
+            .itsbutton:active {
+                color:black;
+                background:#ff441a;
+                box-shadow: 0 0 5px -1px rgba(0,0,0,5);
+                -webkit-box-shadow:inset 1px 1px 3px 0 #000000;
+                box-shadow:inset 1px 1px 3px 0 #000000;
+                margin-bottom: 10px;
+            }
+
+            .table-title {
+                color: #fafafa;
+                text-align: center;
+                font-weight: 400;
+                font-style:normal;
+                font-family: "Roboto", helvetica, arial, sans-serif;
+                text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.5);
+                text-transform:uppercase;
+            }
+            .big {
+                font-size: 55px;
+                margin: 10px;
+            }
+            .small {
+                font-size: 30px;
+                margin-bottom: 17px;
+                margin-top: 0px;
+            }
+
+            .table-fill {
+                border-radius:3px;
+                border-collapse: collapse;
+                margin: auto;
+                max-width: 300px;
+                padding:5px;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+                animation: float 5s infinite;
+            }
+
+            th {
+                color:#D5DDE5;;
+                background:#1b1e24;
+                border-bottom:4px solid #9ea7af;
+                border-right: 1px solid #343a45;
+                font-size:40px;
+                font-weight: normal;
+                padding:24px;
+                text-align: center;
+                text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+                vertical-align:middle;
+            }
+
+            th:first-child {
+                border-top-left-radius:3px;
+            }
+
+            th:last-child {
+                border-top-right-radius:3px;
+                border-right:none;
+            }
+
+            tr {
+                border-top: 1px solid #C1C3D1;
+                border-bottom-: 1px solid #C1C3D1;
+                color:#666B85;
+                text-shadow: 0 1px 1px rgba(256, 256, 256, 0.1);
+            }
+
+            tr:hover td {
+                background:#4E5066;
+                color:#FFFFFF;
+                border-top: 1px solid #22262e;
+                border-bottom: 1px solid #22262e;
+            }
+
+            tr:first-child {
+                border-top:none;
+            }
+
+            tr:last-child {
+                border-bottom:none;
+            }
+
+            tr:nth-child(odd) td {
+                background:#EBEBEB;
+            }
+            .highlighted tr:nth-child(1) td {
+                background:#9e0000;
+                color:#FFFFFF;
+                font-weight: 600;
+                font-size: 35px;
+            }
+
+            tr:nth-child(odd):hover td {
+                background:#4E5066;
+            }
+
+            tr:last-child td:first-child {
+                border-bottom-left-radius:3px;
+            }
+
+            tr:last-child td:last-child {
+                border-bottom-right-radius:3px;
+            }
+
+            td {
+                background:#FFFFFF;
+                padding:20px;
+                text-align:left;
+                vertical-align:middle;
+                font-weight:bold;
+                font-size:30px;
+                text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
+                border-right: 1px solid #C1C3D1;
+            }
+
+            td:last-child {
+                border-right: 0px;
+            }
+
+
+            .pmargin {
+                margin: 40px;
+            }
+            .space {
+                height:50px;
+            }
+
+            @media screen and (max-width:900px) {
+                th {
+                    font-size:25px;
+                }
+                td {
+                    font-size: 20px;
+                }
+                .big {
+                    font-size: 35px;
+                }
+                .small {
+                    font-size: 20px;
+                }
+                .highlighted tr:nth-child(1) td {
+                    font-size: 25px;
+                }
+                .pmargin {
+                    margin: 0px;
+                    margin-bottom: 12px;
+                }
+            }
+            @media screen and (max-width:700px) {
+                th {
+                    font-size:20px;
+                    padding: 14px;
+                }
+                td {
+                    font-size: 15px;
+                    padding: 14px;
+                }
+                .big {
+                    font-size: 22px;
+                }
+                .small {
+                    font-size: 16px;
+                }
+                .highlighted tr:nth-child(1) td {
+                    font-size: 20px;
+                    padding: 14px;
+                }
+            }
+            @media screen and (max-width:600px) {
+                th {
+                    font-size:16px;
+                    padding: 12px;
+                }
+                td {
+                    font-size: 12px;
+                    padding: 12px;
+                }
+                .big {
+                    font-size: 18px;
+                }
+                .small {
+                    font-size: 14px;
+                }
+                .highlighted tr:nth-child(1) td {
+                    font-size: 15px;
+                    padding: 12px;
+                }
+                .itsbutton {
+                    font-size: 18px;
+                    padding:7px;
+                    height: 20px;
+                    line-height: 20px;
+                    width: 120px;
+                }
+                .space {
+                    height:5px;
+                }
+            }
+            @media screen and (max-width:450px) {
+                th {
+                    font-size:10px;
+                    padding: 8px;
+                }
+                td {
+                    font-size: 10px;
+                    padding: 8px;
+                }
+                .big {
+                    font-size: 13px;
+                }
+                .small {
+                    font-size: 10px;
+                }
+                .highlighted tr:nth-child(1) td {
+                    font-size: 12px;
+                    padding: 8px;
+                }
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .columns {
+                text-align: center;
+                margin: auto;
+            }
+            .float {
+                display: inline-block;
+                vertical-align: top;
+            }
+
+            .smalltable th {
+                font-size:16px;
+                padding: 12px;
+            }
+            .smalltable td {
+                font-size: 12px;
+                padding: 12px;
+            }
+            .smalltable .big {
+                font-size: 18px;
+            }
+            .smalltable .small {
+                font-size: 14px;
+            }
+            .smalltable .highlighted tr:nth-child(1) td {
+                font-size: 15px;
+                padding: 12px;
+            }
+            .smalltable .itsbutton {
+                width:50%;
+                font-size: 18px;
+            }
+            .right {
+                float:right;
+            }
+        </style>
+    </head>
+    <body onkeydown="uniKeyCodeDown(event)" onkeyup="uniKeyCodeUp(event)">
+        <!-- přihlašován přes formulář -->
+        <!--     <div id="logindiv" class="invisible">
+                <h2>Přihlášení do systému</h2>
+                <form action="" id="nameform">
+                    <p>Zadej jméno:</p>
+                    <input id="name" autocomplete="off" /><button>Odeslat</button>
+                </form>  
+            </div> -->
+        <div id="space"></div>
+        <div id="buttondiv" class=" float">
+            <img  id="button" ondragstart="return false;" ondrop="return false;" oncontextmenu="return false;" src="http://tomik-v-somu.jecool.net/hlasovac/up.svg" 
+                  alt="button up">
+        </div>
+        <div class="columns">
+            <div id="updateusers" class="itsbutton float" onclick="refreshusers()">Refresh users</div>
+            <div id="clearclicks" class="itsbutton float" onclick="clearplz()">Čistka kliků</div>
+            <div id="fakebutton" class="itsbutton float" onclick="MouseDown()">Simulate click</div>
+        </div>
+
+        <div class="columns">
+            <div id="clickeddiv" class="invisible float fixed">   
+                <h3 class="table-title big">Tabulka kliknutí</h3>
+                <p class="table-title small" id="clicks"></p>
+                <table class="table-fill highlighted">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>název</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableclicks">
+
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="usersdiv" class="invisible float"> 
+                <h3 class="table-title big">Tabulka uživatelů</h3>
+                <p class="table-title small" id="usersall"> </p>
+                <p class="table-title small" id="users"> </p>
+                <table class="table-fill">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>název</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableusers">
+
+                    </tbody>
+                </table>
+            </div>
+            <script>
+                var socket = io();
+                var name = 'Unnamed';
+                var name_time = ['tom', 'date'];
+
+                //Přihlašování přes alert
+                show_prompt();
+                function show_prompt() {
+                    var fomrname = prompt('Zadejte své jméno prosím:', 'sample name');
+                    if (fomrname !== null && fomrname !== "") {
+                        name = fomrname;
+                        var myElement = document.querySelector("#buttondiv");
+                        myElement.style.visibility = "visible";
+                        switch (name) {
+                            case 'admin':
+                                var myElement = document.querySelector("#usersall");
+                                myElement.style.visibility = "visible";
+
+                                myElement = document.querySelector("#clickeddiv");
+                                myElement.style.visibility = "visible";
+
+                                myElement = document.querySelector("#usersdiv");
+                                myElement.style.visibility = "visible";
+
+                                myElement = document.querySelector("#buttondiv");
+                                myElement.style.height = "0px";
+                                myElement.style.width = "0px";
+                                myElement.style.visibility = "none";
+
+                                myElement = document.querySelector("#button");
+                                myElement.style.width = "0px";
+                                myElement.style.height = "0px";
+                                myElement.style.visibility = "none";
+
+                                myElement = document.querySelector("#space");
+                                myElement.className += " space";
+
+                                myElement = document.querySelector("#clicks");
+                                myElement.className += " pmargin";
+                                break;
+                            case 'table':
+                                $("#usersall").remove();
+                                var myElement = document.querySelector("#clickeddiv");
+                                myElement.style.visibility = "visible";
+
+                                myElement = document.querySelector("#buttondiv");
+                                myElement.style.visibility = "hidden";
+                                myElement.style.height = "0px";
+
+                                myElement = document.querySelector("#button");
+                                myElement.style.width = "0px";
+                                myElement.style.height = "0px";
+                                $("#clearclicks").remove();
+                                $("#usersdiv").remove();
+                                $("#updateusers").remove();
+                                $("#fakebutton").remove();
+                                break;
+                            case 'users':
+                                var myElement = document.querySelector("#usersdiv");
+                                myElement.style.visibility = "visible";
+
+                                myElement = document.querySelector("#buttondiv");
+                                myElement.style.visibility = "hidden";
+                                myElement.style.height = "0px";
+
+                                myElement = document.querySelector("#button");
+                                myElement.style.width = "0px";
+                                myElement.style.height = "0px";
+                                //     $("#buttondiv").remove();
+                                $("#clearclicks").remove();
+                                $("#updateusers").remove();
+                                $("#clickeddiv").remove();
+                                $("#usersall").remove();
+                                $("#fakebutton").remove();
+                                break;
+                            case 'tableusers':
+                            case 'userstable':
+                                var myElement = document.querySelector("#clickeddiv");
+                                myElement.style.visibility = "visible";
+
+                                myElement = document.querySelector("#buttondiv");
+                                myElement.style.visibility = "hidden";
+                                myElement.style.height = "0px";
+
+                                myElement = document.querySelector("#button");
+                                myElement.style.width = "0px";
+                                myElement.style.height = "0px";
+                                $("#clearclicks").remove();
+                                $("#updateusers").remove();
+
+                                myElement = document.querySelector("#usersdiv");
+                                myElement.style.visibility = "visible";
+
+                                myElement = document.querySelector("#usersdiv");
+                                myElement.className += "smalltable right";
+                                $("#clearclicks").remove();
+                                $("#updateusers").remove();
+                                $("#usersall").remove();
+                                $("#fakebutton").remove();
+                                name = 'tableusers';
+                                break;
+
+                            default:
+                                var myElement = document.querySelector("#buttondiv");
+                                myElement.style.visibility = "visible";
+                                $("#usersall").remove();
+                                $("#clickeddiv").remove();
+                                $("#usersdiv").remove();
+                                $("#clicks").remove();
+                                $(".columns").remove();
+                                break;
+                        }
+                    }
+                }
+
+                //zjistí, ejstli je zařízení telefonem
+                var isMobile = {
+                    Android: function () {
+                        return navigator.userAgent.match(/Android/i);
+                    },
+                    BlackBerry: function () {
+                        return navigator.userAgent.match(/BlackBerry/i);
+                    },
+                    iOS: function () {
+                        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+                    },
+                    Opera: function () {
+                        return navigator.userAgent.match(/Opera Mini/i);
+                    },
+                    Windows: function () {
+                        return navigator.userAgent.match(/IEMobile/i);
+                    },
+                    any: function () {
+                        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+                    }
+                };
+
+                //na telefonu tapnutí prstem
+                if (isMobile.any()) {
+                    window.addEventListener('load', function () {
+
+                        var buttontap = document.getElementById('button');
+
+                        buttontap.addEventListener('touchstart', function () {
+                            MouseDown();
+                        }, false);
+
+                        buttontap.addEventListener('touchend', function () {
+                            MouseUp();
+                        }, false);
+                    }, false);
+                    //na kompu kliknutí myší
+                } else {
+                    var anchor = document.getElementById("button");
+                    var att = document.createAttribute("onmousedown");
+                    att.value = 'MouseDown();';
+                    anchor.setAttributeNode(att);
+
+                    att = document.createAttribute("onmouseup");
+                    att.value = 'MouseUp();';
+                    anchor.setAttributeNode(att);
+                }
+
+                //zjistí kliknutí na klávesnici (jakékoliv)
+                function uniKeyCodeDown(event) {
+                    var key = event.keyCode;
+                    if (name !== 'admin' && name !== 'table' && name !== 'users' && name !== 'tableusers') {
+                        if (key === 32 || key === 13) {
+                            MouseDown();
+                        }
+                    }
+                }
+                function uniKeyCodeUp(event) {
+                    var key = event.keyCode;
+                    if (name !== 'admin' && name !== 'table' && name !== 'users' && name !== 'tableusers') {
+                        if (key === 32 || key === 13) {
+                            MouseUp();
+                        }
+                    }
+                }
+
+                //Buttonek
+                function MouseDown() {
+                    document.getElementById("button").src = "http://tomik-v-somu.jecool.net/hlasovac/down.svg";
+                    document.getElementById("button").alt = "button down";
+                    var d = new Date();
+                    var time = (String(d.getHours()) + ':' + String(d.getMinutes()) + ':' + String(d.getSeconds()) + ':' + String(d.getMilliseconds()));
+                    name_time[0] = name;
+                    name_time[1] = time;
+                    socket.emit('clicked', name_time);
+                }
+                function MouseUp() {
+                    document.getElementById("button").src = "http://tomik-v-somu.jecool.net/hlasovac/up.svg";
+                    document.getElementById("button").alt = "button up";
+                }
+                function MouseDownFake() {
+                    document.getElementById("button").src = "http://tomik-v-somu.jecool.net/hlasovac/down.svg";
+                    document.getElementById("button").alt = "button down";
+                }
+
+                socket.on('clicked', function (name_time_clicks) {
+                    writeclicks(name_time_clicks[2]);
+                    $('#tableclicks').append('<tr><td>' + name_time_clicks[2] + '.</td><td>' + name_time_clicks[0] + '</td>');
+                });
+
+                //Zajistí skvělou velikost buttonku (na celou obrazovku
+
+                if (name !== 'admin' && name !== 'table' && name !== 'users' && name !== 'tableusers') {
+                    resize();
+                    window.onresize = function (event) {
+                        resize();
+                    };
+                }
+
+                function resize() {
+                    var w = window.innerWidth
+                            || document.documentElement.clientWidth
+                            || document.body.clientWidth;
+
+                    var h = window.innerHeight
+                            || document.documentElement.clientHeight
+                            || document.body.clientHeight;
+
+                    if (w < h) {
+                        var myElement = document.querySelector("#button");
+                        myElement.style.width = w + 'px';
+                        myElement.style.height = w + 'px';
+                    } else {
+                        var myElement = document.querySelector("#button");
+                        myElement.style.width = h - 5 + 'px';
+                        myElement.style.height = h - 5 + 'px';
+                    }
+                }
+
+                //Tabulka připojených uživatelů
+                function refreshusers() {
+                    socket.emit('updateusers');
+                }
+                socket.on('checkusers', function () {
+                    $("#tableusers tr").remove();
+                    $('#users').text('Počet připojených uživatelů: 0');
+                    if (name !== 'admin' && name !== 'table' && name !== 'users' && name !== 'tableusers') {
+                        socket.emit('username', name);
+                    }
+                });
+
+                socket.on('userslist', function (name_users) {
+                    writeusers(name_users[1]);
+                    $('#tableusers').append('<tr><td>' + name_users[1] + '.</td><td>' + name_users[0] + '</td></tr>');
+                });
+
+                function writeusers(users) {
+                    $('#users').text('Počet připojených uživatelů: ' + users);
+                }
+
+                //Čistka tabulky kliknutí
+                function clearplz() {
+                    socket.emit('clear');
+                }
+
+                socket.on('cleared', function () {
+                    $("#tableclicks tr").remove();
+                });
+                socket.on('writeclicks', function (clicks) {
+                    writeclicks(clicks);
+                });
+
+                function writeclicks(clicks) {
+                    $('#clicks').text('Počet kliknutí: ' + clicks);
+                }
+
+                //Počet připojených uživatelů
+                socket.on('usersall', function (usersall) {
+                    $('#usersall').text('Počet připojených zařízení: ' + usersall);
+                }
+                );
+
+                // Příhlašování přes formulář
+                /*$('form').submit(function () {
+                 name = document.getElementById('name').value;
+                 $('#name').val('');
+                 socket.emit('updateusers');
+                 removeDummy('logindiv');
+                 var myElement = document.querySelector("#buttondiv");
+                 myElement.style.visibility = "visible";
+                 if (name === 'admin') {
+                 var myElement = document.querySelector("#users");
+                 myElement.style.visibility = "visible";
+                 var myElement = document.querySelector("#clickeddiv");
+                 myElement.style.visibility = "visible";
+                 var myElement = document.querySelector("#usersdiv");
+                 myElement.style.visibility = "visible";
+                 }
+                 if (name === 'table') {
+                 var myElement = document.querySelector("#users");
+                 myElement.style.visibility = "visible";
+                 var myElement = document.querySelector("#clickeddiv");
+                 myElement.style.visibility = "visible";
+                 $("#buttondiv").remove();
+                 $("#clearclicks").remove();
+                 $("#usersdiv").remove();
+                 }
+                 return false;
+                 }); 
+                 
+                 //Smazání přihlašovacího formuláře
+                 function removeDummy(dummyid) {
+                 var elem = document.getElementById(dummyid);
+                 elem.parentNode.removeChild(elem);
+                 } */
+
+            </script>
+    </body>
+</html>
